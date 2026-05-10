@@ -4,48 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ประชาชนแจ้งเหตุภัยพิบัติ</title>
-
   <style>
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Sarabun", sans-serif;
       background: #f0f4f8;
       color: #1e2d3d;
-      padding: 18px;
+      padding: 14px;
     }
-
     .wrap {
-      max-width: 720px;
+      max-width: 760px;
       margin: 0 auto;
       background: #fff;
       border-radius: 18px;
       padding: 22px;
       box-shadow: 0 8px 28px rgba(0,0,0,.12);
     }
-
     h1 {
       margin: 0 0 6px;
       font-size: 24px;
       color: #1a3a5c;
       text-align: center;
     }
-
     .sub {
       text-align: center;
       color: #5a7184;
       margin-bottom: 22px;
     }
-
     label {
       display: block;
       font-weight: 700;
       margin: 14px 0 6px;
     }
-
     .req { color: #d62828; }
-
     input, select, textarea {
       width: 100%;
       padding: 13px 14px;
@@ -54,28 +46,22 @@
       font-size: 16px;
       font-family: inherit;
     }
-
     textarea {
       min-height: 110px;
       resize: vertical;
     }
-
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
     }
-
     .full { grid-column: 1 / -1; }
-
     .urgency-box {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
     }
-
     .urgency-box input { display: none; }
-
     .urgency-box label {
       margin: 0;
       padding: 12px 8px;
@@ -85,7 +71,6 @@
       cursor: pointer;
       background: white;
     }
-
     #u1:checked + label { background:#d62828; color:white; border-color:#d62828; }
     #u2:checked + label { background:#f77f00; color:white; border-color:#f77f00; }
     #u3:checked + label { background:#0096c7; color:white; border-color:#0096c7; }
@@ -96,14 +81,12 @@
       grid-template-columns: 1fr 180px;
       gap: 10px;
     }
-
     .actions {
       display: flex;
       gap: 12px;
       justify-content: flex-end;
       margin-top: 22px;
     }
-
     button {
       border: none;
       border-radius: 10px;
@@ -113,18 +96,19 @@
       cursor: pointer;
       font-family: inherit;
     }
-
     .btn-gps { background:#1a3a5c; color:white; }
     .btn-clear { background:white; color:#1a3a5c; border:2px solid #1a3a5c; }
     .btn-submit { background:#e85d04; color:white; }
-
+    .btn-submit:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
     .note {
       color:#5a7184;
       font-size:14px;
       margin-top:6px;
       line-height:1.5;
     }
-
     @media (max-width: 640px) {
       body { padding: 10px; }
       .wrap { padding: 18px; }
@@ -217,19 +201,19 @@
       <div class="full">
         <label>แนบรูปภาพสถานที่เกิดเหตุ (ถ้ามี)</label>
         <input type="file" id="f-image" accept="image/*" multiple onchange="validateImageCount(this)">
-        <div class="note">
-          แนบได้สูงสุด 10 รูป รองรับรูปจากกล้องมือถือหรือรูปในเครื่อง
-        </div>
+        <div class="note">แนบได้สูงสุด 10 รูป</div>
       </div>
     </div>
 
     <div class="actions">
       <button type="button" class="btn-clear" onclick="clearForm()">🗑️ ล้างข้อมูล</button>
-      <button type="button" class="btn-submit" onclick="submitReport()">📤 ส่งรายงาน</button>
+      <button type="button" id="submitBtn" class="btn-submit" onclick="submitReport()">📤 ส่งรายงาน</button>
     </div>
   </div>
 
 <script>
+const WEBAPP_URL = 'วาง_URL_Apps_Script_WebApp_ตรงนี้';
+
 function getCurrentLocation() {
   if (!navigator.geolocation) {
     alert('อุปกรณ์นี้ไม่รองรับการดึงพิกัด GPS');
@@ -300,13 +284,12 @@ function clearForm() {
   document.getElementById('u3').checked = true;
 }
 
-const WEBAPP_URL = 'วาง_URL_Apps_Script_WebApp_ตรงนี้';
-
-const WEBAPP_URL = 'วาง_URL_Apps_Script_WebApp_ตรงนี้';
-
 function submitReport() {
+  const btn = document.getElementById('submitBtn');
+
   const name = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
+  const phonePattern = /^0\d{2}-\d{3}-\d{4}$/;
   const type = document.getElementById('f-type').value;
   const location = document.getElementById('f-location').value.trim();
   const detail = document.getElementById('f-detail').value.trim();
@@ -314,6 +297,16 @@ function submitReport() {
 
   if (!name || !phone || !type || !location || !detail) {
     alert('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน');
+    return;
+  }
+
+  if (!phonePattern.test(phone)) {
+    alert('กรุณากรอกเบอร์โทรให้ถูกต้อง เช่น 091-635-2235');
+    return;
+  }
+
+  if (!WEBAPP_URL || WEBAPP_URL.includes('วาง_URL')) {
+    alert('ยังไม่ได้ใส่ URL Apps Script Web App ใน WEBAPP_URL');
     return;
   }
 
@@ -330,7 +323,8 @@ function submitReport() {
     imageUrl: ''
   };
 
-  alert('กำลังส่งรายงาน...');
+  btn.disabled = true;
+  btn.textContent = 'กำลังส่งรายงาน...';
 
   fetch(WEBAPP_URL, {
     method: 'POST',
@@ -352,6 +346,10 @@ function submitReport() {
   })
   .catch(function(err) {
     alert('เชื่อมต่อระบบไม่สำเร็จ: ' + err.message);
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.textContent = '📤 ส่งรายงาน';
   });
 }
 </script>
