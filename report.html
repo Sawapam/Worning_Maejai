@@ -1,1 +1,53 @@
 
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ประชาชนแจ้งเหตุภัยพิบัติ</title>
+</head>
+<body style="font-family:sans-serif;background:#f0f4f8;padding:24px">
+
+  <div style="max-width:520px;margin:auto;background:white;padding:22px;border-radius:16px">
+    <h2>ประชาชนแจ้งเหตุภัยพิบัติ</h2>
+
+    <input id="name" placeholder="ชื่อผู้แจ้ง" style="width:100%;padding:12px;margin:8px 0">
+    <input id="phone" placeholder="เบอร์โทร" style="width:100%;padding:12px;margin:8px 0">
+    <input id="location" placeholder="สถานที่เกิดเหตุ" style="width:100%;padding:12px;margin:8px 0">
+    <textarea id="detail" placeholder="รายละเอียดเหตุการณ์" style="width:100%;padding:12px;margin:8px 0;height:100px"></textarea>
+
+    <input id="gps" placeholder="พิกัด GPS" style="width:100%;padding:12px;margin:8px 0">
+
+    <button onclick="getGPS()" style="width:100%;padding:14px;background:#1a3a5c;color:white;border:0;border-radius:10px;font-weight:bold">
+      📍 ใช้ตำแหน่งปัจจุบัน
+    </button>
+
+    <button onclick="submitReport()" style="width:100%;padding:14px;background:#e85d04;color:white;border:0;border-radius:10px;font-weight:bold;margin-top:12px">
+      📤 ส่งรายงาน
+    </button>
+  </div>
+
+<script>
+const WEBAPP_URL = 'วาง_URL_Apps_Script_WebApp_ตรงนี้';
+
+function getGPS() {
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      document.getElementById('gps').value =
+        pos.coords.latitude.toFixed(6) + ', ' + pos.coords.longitude.toFixed(6);
+      alert('ดึงพิกัดสำเร็จ');
+    },
+    function(err) {
+      alert('GPS Error: ' + err.code + ' ' + err.message);
+    },
+    { enableHighAccuracy:true, timeout:30000, maximumAge:0 }
+  );
+}
+
+function submitReport() {
+  alert('รอบนี้ทดสอบหน้า report.html ก่อน ยังไม่ส่งเข้า Sheet');
+}
+</script>
+
+</body>
+</html>
