@@ -1,51 +1,333 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ประชาชนแจ้งเหตุภัยพิบัติ</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Sarabun", sans-serif;
+      background: #f0f4f8;
+      color: #1e2d3d;
+      padding: 18px;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.12);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      color: #1a3a5c;
+      text-align: center;
+    }
+
+    .sub {
+      text-align: center;
+      color: #5a7184;
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 14px 0 6px;
+    }
+
+    .req { color: #d62828; }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1.5px solid #d0dce8;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .urgency-box {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .urgency-box input { display: none; }
+
+    .urgency-box label {
+      margin: 0;
+      padding: 12px 8px;
+      border: 2px solid #d0dce8;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      background: white;
+    }
+
+    #u1:checked + label { background:#d62828; color:white; border-color:#d62828; }
+    #u2:checked + label { background:#f77f00; color:white; border-color:#f77f00; }
+    #u3:checked + label { background:#0096c7; color:white; border-color:#0096c7; }
+    #u4:checked + label { background:#2d9c52; color:white; border-color:#2d9c52; }
+
+    .gps-row {
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 10px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 22px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 13px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-gps { background:#1a3a5c; color:white; }
+    .btn-clear { background:white; color:#1a3a5c; border:2px solid #1a3a5c; }
+    .btn-submit { background:#e85d04; color:white; }
+
+    .note {
+      color:#5a7184;
+      font-size:14px;
+      margin-top:6px;
+      line-height:1.5;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 10px; }
+      .wrap { padding: 18px; }
+      .grid { grid-template-columns: 1fr; }
+      .urgency-box { grid-template-columns: 1fr 1fr; }
+      .gps-row { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      button { width: 100%; }
+    }
+  </style>
 </head>
-<body style="font-family:sans-serif;background:#f0f4f8;padding:24px">
 
-  <div style="max-width:520px;margin:auto;background:white;padding:22px;border-radius:16px">
-    <h2>ประชาชนแจ้งเหตุภัยพิบัติ</h2>
+<body>
+  <div class="wrap">
+    <h1>แบบฟอร์มแจ้งภัยพิบัติ</h1>
+    <div class="sub">เทศบาลตำบลแม่ใจ</div>
 
-    <input id="name" placeholder="ชื่อผู้แจ้ง" style="width:100%;padding:12px;margin:8px 0">
-    <input id="phone" placeholder="เบอร์โทร" style="width:100%;padding:12px;margin:8px 0">
-    <input id="location" placeholder="สถานที่เกิดเหตุ" style="width:100%;padding:12px;margin:8px 0">
-    <textarea id="detail" placeholder="รายละเอียดเหตุการณ์" style="width:100%;padding:12px;margin:8px 0;height:100px"></textarea>
+    <div class="grid">
+      <div>
+        <label>ชื่อผู้แจ้ง <span class="req">*</span></label>
+        <input type="text" id="f-name" placeholder="ระบุชื่อ-นามสกุล">
+      </div>
 
-    <input id="gps" placeholder="พิกัด GPS" style="width:100%;padding:12px;margin:8px 0">
+      <div>
+        <label>เบอร์โทรติดต่อ <span class="req">*</span></label>
+        <input type="tel" id="f-phone" placeholder="0xx-xxx-xxxx" maxlength="12" oninput="formatPhoneInput(this)">
+      </div>
 
-    <button onclick="getGPS()" style="width:100%;padding:14px;background:#1a3a5c;color:white;border:0;border-radius:10px;font-weight:bold">
-      📍 ใช้ตำแหน่งปัจจุบัน
-    </button>
+      <div>
+        <label>ประเภทภัยพิบัติ <span class="req">*</span></label>
+        <select id="f-type">
+          <option value="">-- เลือกประเภทภัย --</option>
+          <option>น้ำท่วม</option>
+          <option>ไฟไหม้</option>
+          <option>ดินถล่ม</option>
+          <option>พายุ/วาตภัย</option>
+          <option>แผ่นดินไหว</option>
+          <option>ต้นไม้ล้มขวางทาง</option>
+          <option>ไฟฟ้าขัดข้อง</option>
+          <option>อุบัติเหตุทางถนน</option>
+          <option>อื่น ๆ</option>
+        </select>
+      </div>
 
-    <button onclick="submitReport()" style="width:100%;padding:14px;background:#e85d04;color:white;border:0;border-radius:10px;font-weight:bold;margin-top:12px">
-      📤 ส่งรายงาน
-    </button>
+      <div>
+        <label>สถานที่เกิดเหตุ <span class="req">*</span></label>
+        <input type="text" id="f-location" placeholder="บ้านเลขที่ / ชุมชน / ถนน">
+      </div>
+
+      <div class="full">
+        <label>ระดับความเร่งด่วน <span class="req">*</span></label>
+        <div class="urgency-box">
+          <input type="radio" name="urgency" id="u1" value="วิกฤต">
+          <label for="u1">🔴 วิกฤต</label>
+
+          <input type="radio" name="urgency" id="u2" value="สูง">
+          <label for="u2">🟠 สูง</label>
+
+          <input type="radio" name="urgency" id="u3" value="ปานกลาง" checked>
+          <label for="u3">🔵 ปานกลาง</label>
+
+          <input type="radio" name="urgency" id="u4" value="น้อย">
+          <label for="u4">🟢 น้อย</label>
+        </div>
+      </div>
+
+      <div class="full">
+        <label>รายละเอียดเหตุการณ์ <span class="req">*</span></label>
+        <textarea id="f-detail" placeholder="อธิบายสถานการณ์ ความเสียหาย จำนวนผู้ได้รับผลกระทบ ฯลฯ"></textarea>
+      </div>
+
+      <div>
+        <label>จำนวนผู้ได้รับผลกระทบ (ประมาณ)</label>
+        <input type="number" id="f-affected" placeholder="0" min="0">
+      </div>
+
+      <div>
+        <label>วันที่/เวลาเกิดเหตุ</label>
+        <input type="datetime-local" id="f-datetime">
+      </div>
+
+      <div class="full">
+        <label>พิกัด GPS (ถ้ามี)</label>
+        <div class="gps-row">
+          <input type="text" id="f-gps" placeholder="เช่น 19.394266, 99.775516">
+          <button type="button" class="btn-gps" onclick="getCurrentLocation()">📍 ใช้ตำแหน่ง</button>
+        </div>
+      </div>
+
+      <div class="full">
+        <label>แนบรูปภาพสถานที่เกิดเหตุ (ถ้ามี)</label>
+        <input type="file" id="f-image" accept="image/*" multiple onchange="validateImageCount(this)">
+        <div class="note">
+          แนบได้สูงสุด 10 รูป รองรับรูปจากกล้องมือถือหรือรูปในเครื่อง
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn-clear" onclick="clearForm()">🗑️ ล้างข้อมูล</button>
+      <button type="button" class="btn-submit" onclick="submitReport()">📤 ส่งรายงาน</button>
+    </div>
   </div>
 
 <script>
-const WEBAPP_URL = 'วาง_URL_Apps_Script_WebApp_ตรงนี้';
+function getCurrentLocation() {
+  if (!navigator.geolocation) {
+    alert('อุปกรณ์นี้ไม่รองรับการดึงพิกัด GPS');
+    return;
+  }
 
-function getGPS() {
+  const gpsInput = document.getElementById('f-gps');
+
   navigator.geolocation.getCurrentPosition(
-    function(pos) {
-      document.getElementById('gps').value =
-        pos.coords.latitude.toFixed(6) + ', ' + pos.coords.longitude.toFixed(6);
-      alert('ดึงพิกัดสำเร็จ');
+    function(position) {
+      const lat = Number(position.coords.latitude).toFixed(6);
+      const lng = Number(position.coords.longitude).toFixed(6);
+      gpsInput.value = lat + ', ' + lng;
+      alert('ดึงพิกัด GPS สำเร็จ');
     },
-    function(err) {
-      alert('GPS Error: ' + err.code + ' ' + err.message);
+    function(error) {
+      alert(
+        'ดึงพิกัดไม่สำเร็จ' +
+        '\nError code: ' + error.code +
+        '\nMessage: ' + error.message
+      );
     },
-    { enableHighAccuracy:true, timeout:30000, maximumAge:0 }
+    {
+      enableHighAccuracy: true,
+      timeout: 30000,
+      maximumAge: 0
+    }
   );
 }
 
+function validateImageCount(input) {
+  if (input.files.length > 10) {
+    alert('แนบรูปภาพได้สูงสุดไม่เกิน 10 รูป');
+    input.value = '';
+  }
+}
+
+function formatPhoneInput(input) {
+  let value = input.value.replace(/\D/g, '');
+
+  if (value.length > 10) value = value.slice(0, 10);
+
+  if (value.length >= 7) {
+    input.value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6);
+  } else if (value.length >= 4) {
+    input.value = value.slice(0, 3) + '-' + value.slice(3);
+  } else {
+    input.value = value;
+  }
+}
+
+function clearForm() {
+  [
+    'f-name',
+    'f-phone',
+    'f-type',
+    'f-location',
+    'f-detail',
+    'f-affected',
+    'f-datetime',
+    'f-gps',
+    'f-image'
+  ].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  document.getElementById('u3').checked = true;
+}
+
 function submitReport() {
-  alert('รอบนี้ทดสอบหน้า report.html ก่อน ยังไม่ส่งเข้า Sheet');
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const type = document.getElementById('f-type').value;
+  const location = document.getElementById('f-location').value.trim();
+  const detail = document.getElementById('f-detail').value.trim();
+  const urgency = document.querySelector('input[name=urgency]:checked').value;
+
+  if (!name || !phone || !type || !location || !detail) {
+    alert('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน');
+    return;
+  }
+
+  const payload = {
+    name: name,
+    phone: phone,
+    type: type,
+    location: location,
+    urgency: urgency,
+    detail: detail,
+    affected: Number(document.getElementById('f-affected').value || 0),
+    datetime: document.getElementById('f-datetime').value || new Date().toISOString().slice(0, 16),
+    gps: document.getElementById('f-gps').value.trim(),
+    imageUrl: ''
+  };
+
+  console.log('payload เตรียมส่ง:', payload);
+  alert('ฟอร์มพร้อมแล้ว รอบถัดไปจะเชื่อมส่งเข้า Google Sheet');
 }
 </script>
 
