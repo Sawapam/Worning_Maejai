@@ -300,6 +300,8 @@ function clearForm() {
   document.getElementById('u3').checked = true;
 }
 
+const WEBAPP_URL = 'วาง_URL_Apps_Script_WebApp_ตรงนี้';
+
 function submitReport() {
   const name = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
@@ -326,8 +328,29 @@ function submitReport() {
     imageUrl: ''
   };
 
-  console.log('payload เตรียมส่ง:', payload);
-  alert('ฟอร์มพร้อมแล้ว รอบถัดไปจะเชื่อมส่งเข้า Google Sheet');
+  alert('กำลังส่งรายงาน...');
+
+  fetch(WEBAPP_URL, {
+    method: 'POST',
+    body: JSON.stringify({
+      action: 'addReport',
+      payload: payload
+    })
+  })
+  .then(function(res) {
+    return res.json();
+  })
+  .then(function(res) {
+    if (res && res.success) {
+      alert('ส่งรายงานสำเร็จ เลขที่แจ้งเหตุ #' + res.id);
+      clearForm();
+    } else {
+      alert('ส่งรายงานไม่สำเร็จ: ' + (res.message || 'ไม่ทราบสาเหตุ'));
+    }
+  })
+  .catch(function(err) {
+    alert('เชื่อมต่อระบบไม่สำเร็จ: ' + err.message);
+  });
 }
 </script>
 
