@@ -5,19 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Worning Maejai</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: sans-serif; }
-    iframe {
-      width: 100vw;
-      height: 100vh;
+    body {
+      font-family: sans-serif;
+      padding: 24px;
+      background: #f4f7fb;
+    }
+    .card {
+      max-width: 520px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      margin-top: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #003b5c;
+      color: white;
       border: none;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <iframe 
-    src="https://script.google.com/macros/s/AKfycbwvhv3VAcCWdjteOHjIk1-RETUAI1WfGBNwwa-KIgTF3v7ti-9kVhJ68ZEu8ysd5BDJ/exec"
-    allowfullscreen>
-  </iframe>
+
+  <div class="card">
+    <h2>ทดสอบดึงพิกัด GPS</h2>
+
+    <input id="gps" placeholder="พิกัด GPS จะแสดงที่นี่">
+
+    <button onclick="getCurrentLocation()">
+      📍 ใช้ตำแหน่งปัจจุบัน
+    </button>
+  </div>
+
+  <script>
+    function getCurrentLocation() {
+      if (!navigator.geolocation) {
+        alert('อุปกรณ์นี้ไม่รองรับ GPS');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          const lat = position.coords.latitude.toFixed(6);
+          const lng = position.coords.longitude.toFixed(6);
+
+          document.getElementById('gps').value = lat + ', ' + lng;
+          alert('ดึงพิกัดสำเร็จ');
+        },
+        function(error) {
+          alert(
+            'ดึงพิกัดไม่สำเร็จ' +
+            '\nError code: ' + error.code +
+            '\nMessage: ' + error.message
+          );
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 30000,
+          maximumAge: 0
+        }
+      );
+    }
+  </script>
+
 </body>
 </html>
